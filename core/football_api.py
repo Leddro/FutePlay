@@ -2,38 +2,36 @@ import os
 import requests
 from dotenv import load_dotenv
 
-# Carrega as variáveis de ambiente do arquivo .env para não expor suas chaves
+# Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
-def buscar_info_time(nome_time="Flamengo"):
+def buscar_jogador(nome_jogador="Arrascaeta"):
     """
-    Busca informações de um time específico na API de Futebol.
+    Busca informações de um jogador específico na API de Futebol.
     """
-    # ATENÇÃO: Pegue a URL exata do endpoint (ex: /teams ou /search) lá no painel do RapidAPI
-    url = "https://free-api-live-football-data.p.rapidapi.com/football-get-team"
+    # URL corrigida usando o endpoint exato que estava no seu painel do RapidAPI
+    url = "https://free-api-live-football-data.p.rapidapi.com/football-players-search"
 
-    # Busca a chave que você salvou no arquivo .env
     api_key = os.getenv("RAPIDAPI_KEY")
 
     if not api_key:
         print("Erro: Chave da API não encontrada no arquivo .env!")
         return None
 
-    # Parâmetros da busca (pode variar conforme a documentação da API)
-    querystring = {"search": nome_time}
+    # Parâmetro de busca
+    querystring = {"search": nome_jogador}
 
     # Cabeçalhos obrigatórios do RapidAPI
     headers = {
-        "X-RapidAPI-Key": api_key,
-        "X-RapidAPI-Host": "free-api-live-football-data.p.rapidapi.com"
+        "x-rapidapi-key": api_key,
+        "x-rapidapi-host": "free-api-live-football-data.p.rapidapi.com"
     }
 
     try:
-        print(f"Buscando dados do {nome_time}...")
+        print(f"Buscando dados de: {nome_jogador}...")
         response = requests.get(url, headers=headers, params=querystring)
-        response.raise_for_status()  # Levanta um erro se a requisição falhar (ex: erro 401 ou 404)
+        response.raise_for_status()
 
-        # Converte a resposta em formato JSON para um dicionário Python
         dados = response.json()
         return dados
 
@@ -41,9 +39,9 @@ def buscar_info_time(nome_time="Flamengo"):
         print(f"Ocorreu um erro ao conectar com a API: {e}")
         return None
 
-# Bloco de teste: só roda se você executar este arquivo diretamente
+# Bloco de teste
 if __name__ == "__main__":
-    resultado = buscar_info_time()
+    resultado = buscar_jogador()
 
     if resultado:
         print("\n=== Dados Recebidos da API ===")
