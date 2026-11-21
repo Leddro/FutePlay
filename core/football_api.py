@@ -1,17 +1,20 @@
 import os
 import requests
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 load_dotenv()
+
+# Horário de Brasília (UTC-3; o Brasil não tem horário de verão desde 2019)
+FUSO_BRASILIA = timezone(timedelta(hours=-3), "BRT")
 
 def buscar_proximo_jogo():
     """
     Busca a agenda completa e usa a inteligência do Python para
     filtrar e retornar apenas o jogo mais próximo.
     """
-    # ATENÇÃO: Substitua pela URL exata da aba Search que você usou para gerar aquele JSON
-    url = "https://free-api-live-football-data.p.rapidapi.com/football-search"
+    # Endpoint de busca geral (retorna times e partidas)
+    url = "https://free-api-live-football-data.p.rapidapi.com/football-all-search"
 
     api_key = os.getenv("RAPIDAPI_KEY")
     if not api_key:
@@ -42,9 +45,9 @@ def buscar_proximo_jogo():
                 # Se o jogo ainda não começou e não terminou, é um jogo futuro!
                 if status.get("started") == False and status.get("finished") == False:
 
-                    # Converte a data do formato ISO (ex: 2026-07-11T10:00:00Z) para um formato legível no Python
-                    data_str = item["matchDate"].replace("Z", "")
-                    data_jogo = datetime.fromisoformat(data_str)
+                    # A API retorna a data em UTC (ex: 2026-07-11T10:00:00Z); converte para o horário de Brasília
+                    data_utc = datetime.fromisoformat(item["matchDate"].replace("Z", "+00:00"))
+                    data_jogo = data_utc.astimezone(FUSO_BRASILIA)
 
                     # Guarda as informações essenciais na nossa lista
                     jogos_futuros.append({
